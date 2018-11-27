@@ -30,7 +30,10 @@ func main() {
 				mn.ShowMsg(err.Error())
 			}
 		} else {
-			mn.ShowMsg(fm.Path().Current() + " is not directory")
+			c := make(chan string)
+			worker := &Worker{Command: "xdg-open", Args: fm.Path().Current(), Output: c}
+			go worker.Run()
+			mn.ShowMsg(fm.Path().Current() + " is opening...")
 			fm.Path().Pop()
 		}
 	})
