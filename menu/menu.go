@@ -79,9 +79,8 @@ func (m *Menu) Render() {
 
 func (m *Menu) setEvents() {
 	m.AddEvent(termbox.KeyCtrlC, func(m *Menu) {
-		termbox.Close()
-		os.Exit(0)
-	})
+    Close()	
+  })
 
 	m.AddEvent(termbox.KeyArrowDown, func(m *Menu) {
 		m.activeIndex++
@@ -222,4 +221,9 @@ func (m *Menu) Header(msg string) {
 	for i, ch := range msg {
 		termbox.SetCell(m.window.infoRow+i, 0, ch, termbox.ColorCyan, termbox.ColorDefault)
 	}
+}
+func Close(){
+	termbox.Close()
+	os.Exit(0)
+
 }

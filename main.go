@@ -5,9 +5,10 @@ import (
 	"./menu"
 	termbox "github.com/nsf/termbox-go"
 )
+var fm filemanager.FileManager
 
 func main() {
-	fm := filemanager.New("/")
+	fm = filemanager.New("/")
 
 	menuItems := []string{}
 	files, err := fm.Ls()
@@ -20,36 +21,15 @@ func main() {
 	m := menu.New(menuItems)
 	m.Info("Path: " + fm.Path().Current())
 
-	m.AddEvent(termbox.KeyEnter, func(mn *menu.Menu) {
-		activePath := mn.GetActive()
-		fm.Path().Push(activePath)
-		if filemanager.IsDir(fm.Path().Current()) {
-			err := refresh(mn, &fm, fm.Path().Current())
-			if err != nil {
-				fm.Path().Pop()
-				mn.ShowMsg(err.Error())
-			}
-		} else {
-			c := make(chan string)
-			worker := &Worker{Command: "xdg-open", Args: fm.Path().Current(), Output: c}
-			go worker.Run()
-			mn.ShowMsg(fm.Path().Current() + " is opening...")
-			fm.Path().Pop()
-		}
-	})
+	m.AddEvent(termbox.KeyEnter, enter)
+	m.AddEvent(termbox.KeyArrowRight, enter)
+	m.AddEvent(termbox.KeyArrowLeft, back)
 
-	m.AddEvent(termbox.KeyArrowLeft, func(mn *menu.Menu) {
-		curr := fm.Path().Current()
-		fm.Path().Pop()
-		err := refresh(mn, &fm, fm.Path().Current())
-		if err != nil {
-			fm.Path().Set(curr)
-			mn.ShowMsg(curr + " is the first directory")
-		}
-	})
-
+  m.AddEvent(termbox.KeyEsc, exit)
 	m.Render()
 }
+
+
 
 func refresh(m *menu.Menu, f *filemanager.FileManager, path string) error {
 	files, err := f.Ls()
@@ -69,19 +49,3 @@ func refresh(m *menu.Menu, f *filemanager.FileManager, path string) error {
 	return nil
 }
 
-// func List(root string) (error, []File) {
-// 	var files []File
-// 	fileInfos, err := ioutil.ReadDir(root)
-// 	if err != nil {
-// 		return err, nil
-// 	}
-// 	for _, f := range fileInfos {
-// 		files = append(files, File{
-// 			name:   f.Name(),
-// 			path:   root + "/" + f.Name(),
-// 			active: false,
-// 		})
-// 	}
-
-// 	return nil, files
-// }
