@@ -1,6 +1,7 @@
 package filemanager
 
 import (
+	"path/filepath"
 	"strings"
 )
 
@@ -24,7 +25,8 @@ func (p *Path) Pop() string {
 }
 
 func (p *Path) Current() string {
-	return strings.Join(p.full, "/")
+	//TODO: Fix this shit
+	return filepath.Clean("/" + strings.Join(p.full, "/"))
 }
 
 func (p *Path) Set(path string) {

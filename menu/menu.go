@@ -23,23 +23,24 @@ type Menu struct {
 	itemsActiveIndex int
 	loadedItems      []MenuItem
 	activeIndex      int
-	eventKey         map[termbox.Key]func(*Menu)
+	eventKey         map[termbox.Key]func(*Menu) error
 	window           *Window
 	info             string
 }
 
-func New(mItem []string) Menu {
+func New(mItems []MenuItem) Menu {
 
-	var mItems []MenuItem
-	for _, mi := range mItem {
-		mItems = append(mItems, MenuItem{
-			title: mi,
-		})
-	}
+	// var mItems []MenuItem
+	// for _, mi := range mItem {
+	// 	mItems = append(mItems, MenuItem{
+	// 		Title: mi,
+	// 		Value:
+	// 	})
+	// }
 
 	m := Menu{
 		items:            mItems,
-		eventKey:         make(map[termbox.Key]func(*Menu)),
+		eventKey:         make(map[termbox.Key]func(*Menu) error),
 		activeIndex:      0,
 		itemsActiveIndex: 0,
 	}
@@ -78,11 +79,12 @@ func (m *Menu) Render() {
 }
 
 func (m *Menu) setEvents() {
-	m.AddEvent(termbox.KeyCtrlC, func(m *Menu) {
-    Close()	
-  })
+	m.AddEvent(termbox.KeyCtrlC, func(m *Menu) error {
+		Close()
+		return nil
+	})
 
-	m.AddEvent(termbox.KeyArrowDown, func(m *Menu) {
+	m.AddEvent(termbox.KeyArrowDown, func(m *Menu) error {
 		m.activeIndex++
 		m.itemsActiveIndex++
 
@@ -101,9 +103,11 @@ func (m *Menu) setEvents() {
 				m.activeIndex = 0
 			}
 		}
+		return nil
+
 	})
 
-	m.AddEvent(termbox.KeyArrowUp, func(m *Menu) {
+	m.AddEvent(termbox.KeyArrowUp, func(m *Menu) error {
 		m.activeIndex--
 		m.itemsActiveIndex--
 
@@ -124,6 +128,7 @@ func (m *Menu) setEvents() {
 				m.activeIndex = len(m.loadedItems) - 1
 			}
 		}
+		return nil
 	})
 
 }
@@ -154,8 +159,8 @@ func (m *Menu) loop() {
 }
 
 func (m *Menu) Print() {
-
 	for i, mi := range m.loadedItems {
+
 		if m.activeIndex == i {
 			mi.bg = termbox.ColorBlue
 		}
@@ -164,7 +169,7 @@ func (m *Menu) Print() {
 	m.Header(m.info)
 }
 
-func (m *Menu) AddEvent(e termbox.Key, fn func(*Menu)) {
+func (m *Menu) AddEvent(e termbox.Key, fn func(*Menu) error) {
 	m.eventKey[e] = fn
 }
 
@@ -172,7 +177,7 @@ func (m *Menu) AddItem(mi MenuItem) {
 	m.items = append(m.items, mi)
 }
 
-func (m *Menu) GetActive() string {
+func (m *Menu) GetActive() (string, string) {
 	if m.activeIndex <= 0 {
 		m.activeIndex = 0
 	}
@@ -180,10 +185,10 @@ func (m *Menu) GetActive() string {
 		m.activeIndex = len(m.items)
 	}
 	if len(m.loadedItems) < m.activeIndex {
-		return m.loadedItems[0].title
+		return m.loadedItems[0].Title, m.loadedItems[m.activeIndex].Value
 	}
 
-	return m.loadedItems[m.activeIndex].title
+	return m.loadedItems[m.activeIndex].Title, m.loadedItems[m.activeIndex].Value
 }
 
 func (m *Menu) SetStringItems(items []string) error {
@@ -196,7 +201,7 @@ func (m *Menu) SetStringItems(items []string) error {
 	m.activeIndex = 0
 	for _, i := range items {
 		m.AddItem(MenuItem{
-			title: i,
+			Title: i,
 		})
 	}
 	lItems := m.items
@@ -207,6 +212,27 @@ func (m *Menu) SetStringItems(items []string) error {
 	return nil
 }
 
+func (m *Menu) SetItems(items []MenuItem) error {
+
+	if len(items) <= 0 {
+		return fmt.Errorf("Empty")
+	}
+	m.items = nil
+	m.itemsActiveIndex = 0
+	m.activeIndex = 0
+	// for _, i := range items {
+	// 	m.AddItem(MenuItem{
+	// 		Title: i,
+	// 	})
+	// }
+	m.items = items
+	lItems := m.items
+	if len(m.items) > m.window.height {
+		lItems = m.items[0:m.window.height]
+	}
+	m.loadedItems = lItems
+	return nil
+}
 func (m *Menu) ShowMsg(msg string) {
 
 	for i, ch := range msg {
@@ -222,7 +248,7 @@ func (m *Menu) Header(msg string) {
 		termbox.SetCell(m.window.infoRow+i, 0, ch, termbox.ColorCyan, termbox.ColorDefault)
 	}
 }
-func Close(){
+func Close() {
 	termbox.Close()
 	os.Exit(0)
 

@@ -3,6 +3,7 @@ package filemanager
 import (
 	"io/ioutil"
 	"os"
+	"path/filepath"
 )
 
 type FileManager struct {
@@ -36,7 +37,7 @@ func (f *FileManager) Ls() ([]File, error) {
 	for _, fi := range fileInfos {
 		files = append(files, File{
 			Name:   fi.Name(),
-			Path:   f.Path().Current() + "/" + fi.Name(),
+			Path:   filepath.Clean(f.Path().Current() + "/" + fi.Name()),
 			Active: false,
 		})
 	}
