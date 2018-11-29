@@ -12,6 +12,12 @@ var fm filemanager.FileManager
 var bookmark Bookmark
 var config Config
 
+const (
+	PAGE_FILES     string = "PAGE"
+	PAGE_BOOKMARKS string = "BOOKMARK"
+	PAGE_CONFIRM   string = "CONFIRM"
+)
+
 func main() {
 	fm = filemanager.New("/")
 
@@ -31,17 +37,19 @@ func main() {
 
 	config := NewConfig()
 	bookmark = NewBookmark(config.GetBookmarkPath())
+
 	m.AddEvent(termbox.KeyCtrlB, setBookmark)
 	m.AddEvent(termbox.KeyCtrlSlash, showBookmarks)
 	m.AddEvent(termbox.KeyEnter, enter)
 	m.AddEvent(termbox.KeyArrowRight, enter)
 	m.AddEvent(termbox.KeyArrowLeft, back)
 	m.AddEvent(termbox.KeyEsc, exit)
+	m.AddEvent(termbox.KeyDelete, del)
 
 	m.Render()
 }
 
-func refresh(m *menu.Menu, f *filemanager.FileManager, files []filemanager.File) error {
+func refresh(m *menu.Menu, f *filemanager.FileManager, files []filemanager.File, currentPage string) error {
 	menuItems := []menu.MenuItem{}
 	if len(files) == 0 {
 		return fmt.Errorf("Directory " + f.Path().Current() + " is empty")
@@ -53,7 +61,20 @@ func refresh(m *menu.Menu, f *filemanager.FileManager, files []filemanager.File)
 		})
 	}
 
-	m.SetItems(menuItems)
+	m.SetItems(menuItems, currentPage)
 	m.Info("Path: " + f.Path().Current())
 	return nil
+}
+
+func getConfirmPage() []menu.MenuItem {
+	confirmItems := []menu.MenuItem{}
+	confirmItems = append(confirmItems, menu.MenuItem{
+		Title: "No",
+		Value: "no",
+	})
+	confirmItems = append(confirmItems, menu.MenuItem{
+		Title: "yes",
+		Value: "yes",
+	})
+	return confirmItems
 }

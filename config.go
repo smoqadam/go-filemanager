@@ -17,8 +17,8 @@ func NewConfig() *Config {
 	c.dirPath = p
 	c.createDir()
 	c.creteFile("config")
-	c.creteFile("bookmark")
-	c.bookmarkPath = p + "/bookmark"
+	c.creteFile("bookmarks")
+	c.bookmarkPath = p + "/bookmarks"
 
 	return c
 }

@@ -14,7 +14,7 @@ func enter(mn *menu.Menu) error {
 			return err
 		}
 
-		err = refresh(mn, &fm, files)
+		err = refresh(mn, &fm, files, PAGE_FILES)
 		if err != nil {
 			fm.Path().Pop()
 			mn.ShowMsg(err.Error())
@@ -36,7 +36,7 @@ func back(mn *menu.Menu) error {
 		return err
 	}
 
-	err = refresh(mn, &fm, files)
+	err = refresh(mn, &fm, files, PAGE_FILES)
 	if err != nil {
 		fm.Path().Set(curr)
 		mn.ShowMsg(curr + " is the root directory")
@@ -69,6 +69,21 @@ func showBookmarks(m *menu.Menu) error {
 			Path: p,
 		})
 	}
-	refresh(m, &fm, files)
+	refresh(m, &fm, files, PAGE_BOOKMARKS)
+	return nil
+}
+
+func del(m *menu.Menu) error {
+	m.SetItems(getConfirmPage(), PAGE_CONFIRM)
+	if m.CurrentPage() == PAGE_BOOKMARKS {
+		key, _ := m.GetActive()
+		m.ShowMsg("Bookmark " + key + " deleted!")
+		bookmark.Delete(key)
+		if _, err := bookmark.Get(); err != nil {
+			back(m)
+			return nil
+		}
+		showBookmarks(m)
+	}
 	return nil
 }

@@ -26,26 +26,16 @@ type Menu struct {
 	eventKey         map[termbox.Key]func(*Menu) error
 	window           *Window
 	info             string
+	crrentPage       string
 }
 
 func New(mItems []MenuItem) Menu {
-
-	// var mItems []MenuItem
-	// for _, mi := range mItem {
-	// 	mItems = append(mItems, MenuItem{
-	// 		Title: mi,
-	// 		Value:
-	// 	})
-	// }
-
-	m := Menu{
+	return Menu{
 		items:            mItems,
 		eventKey:         make(map[termbox.Key]func(*Menu) error),
 		activeIndex:      0,
 		itemsActiveIndex: 0,
 	}
-
-	return m
 }
 
 func (m *Menu) Render() {
@@ -160,7 +150,6 @@ func (m *Menu) loop() {
 
 func (m *Menu) Print() {
 	for i, mi := range m.loadedItems {
-
 		if m.activeIndex == i {
 			mi.bg = termbox.ColorBlue
 		}
@@ -212,27 +201,25 @@ func (m *Menu) SetStringItems(items []string) error {
 	return nil
 }
 
-func (m *Menu) SetItems(items []MenuItem) error {
+func (m *Menu) SetItems(items []MenuItem, currentPage string) error {
 
 	if len(items) <= 0 {
 		return fmt.Errorf("Empty")
 	}
+	m.crrentPage = currentPage
 	m.items = nil
 	m.itemsActiveIndex = 0
 	m.activeIndex = 0
-	// for _, i := range items {
-	// 	m.AddItem(MenuItem{
-	// 		Title: i,
-	// 	})
-	// }
 	m.items = items
 	lItems := m.items
+
 	if len(m.items) > m.window.height {
 		lItems = m.items[0:m.window.height]
 	}
 	m.loadedItems = lItems
 	return nil
 }
+
 func (m *Menu) ShowMsg(msg string) {
 
 	for i, ch := range msg {
@@ -252,4 +239,22 @@ func Close() {
 	termbox.Close()
 	os.Exit(0)
 
+}
+
+func (m *Menu) CurrentPage() string {
+	return m.crrentPage
+}
+
+func (m *Menu) Confirm(message string) bool {
+	confirmItems := []MenuItem{}
+	confirmItems = append(confirmItems, MenuItem{
+		Title: "No",
+		Value: "no",
+	})
+	confirmItems = append(confirmItems, MenuItem{
+		Title: "yes",
+		Value: "yes",
+	})
+	m.Info(message)
+	m.SetItems(confirmItems, "CONFIRM")
 }
