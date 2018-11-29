@@ -52,13 +52,13 @@ func exit(m *menu.Menu) error {
 
 func setBookmark(m *menu.Menu) error {
 	title, path := m.GetActive()
-	b.Add(title, path)
+	bookmark.Add(title, path)
 	m.ShowMsg("Bookmark added. Press Ctrl+/ to see all bookmarks")
 	return nil
 }
 
 func showBookmarks(m *menu.Menu) error {
-	bookmarks, err := b.Get()
+	bookmarks, err := bookmark.Get()
 	if err != nil {
 		m.ShowMsg(err.Error())
 	}
@@ -70,6 +70,5 @@ func showBookmarks(m *menu.Menu) error {
 		})
 	}
 	refresh(m, &fm, files)
-	// m.SetStringItems(bookmarks)
 	return nil
 }

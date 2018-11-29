@@ -1,37 +1,50 @@
 package main
 
 import (
-	"fmt"
 	"os"
 )
 
 type Config struct {
-	path         string
+	dirPath      string
+	filePath     string
 	bookmarkPath string
 }
 
 func NewConfig() *Config {
+
 	p := UserHomeDir() + "/.gofila"
-	if _, err := os.Stat(p); os.IsNotExist(err) {
-		os.Mkdir(p, 0775)
-		fmt.Print(p)
-	}
-	return &Config{
-		bookmarkPath: p + "/bookmarks",
-	}
+	c := &Config{}
+	c.dirPath = p
+	c.createDir()
+	c.creteFile("config")
+	c.creteFile("bookmark")
+	c.bookmarkPath = p + "/bookmark"
+
+	return c
 }
 
 func (c *Config) GetBookmarkPath() string {
 	return c.bookmarkPath
 }
 
+func (c *Config) createDir() {
+	if _, err := os.Stat(c.dirPath); os.IsNotExist(err) {
+		os.Mkdir(c.dirPath, 775)
+	}
+}
+
+func (c *Config) creteFile(p string) string {
+	_, err := os.OpenFile(c.dirPath+"/"+p, os.O_CREATE|os.O_WRONLY, 0775)
+	if err != nil {
+		return err.Error()
+	}
+	return c.dirPath + "/" + p
+}
+
 func UserHomeDir() string {
-	// if runtime.GOOS == "windows" {
-	// 	home := os.Getenv("HOMEDRIVE") + os.Getenv("HOMEPATH")
-	// 	if home == "" {
-	// 		home = os.Getenv("USERPROFILE")
-	// 	}
-	// 	return home
-	// }
 	return os.Getenv("HOME")
+}
+
+func (c *Config) GetDirPath() string {
+	return c.dirPath
 }

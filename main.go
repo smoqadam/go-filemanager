@@ -9,7 +9,8 @@ import (
 )
 
 var fm filemanager.FileManager
-var b Bookmark
+var bookmark Bookmark
+var config Config
 
 func main() {
 	fm = filemanager.New("/")
@@ -28,7 +29,8 @@ func main() {
 	m := menu.New(menuItems)
 	m.Info("Path: " + fm.Path().Current())
 
-	b.c = NewConfig()
+	config := NewConfig()
+	bookmark = NewBookmark(config.GetBookmarkPath())
 	m.AddEvent(termbox.KeyCtrlB, setBookmark)
 	m.AddEvent(termbox.KeyCtrlSlash, showBookmarks)
 	m.AddEvent(termbox.KeyEnter, enter)

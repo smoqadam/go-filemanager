@@ -8,13 +8,16 @@ import (
 )
 
 type Bookmark struct {
-	c *Config
+	path string
 }
 
+func NewBookmark(p string) Bookmark {
+	return Bookmark{path: p}
+}
 func (b *Bookmark) Add(title string, path string) error {
 	bookmarks, _ := b.Get()
 	bookmarks[title] = path
-	f, err := os.OpenFile(b.c.GetBookmarkPath(), os.O_CREATE|os.O_WRONLY, 0775)
+	f, err := os.OpenFile(b.path, os.O_WRONLY, 0775)
 	defer f.Close()
 	if err != nil {
 		return err
@@ -27,7 +30,7 @@ func (b *Bookmark) Add(title string, path string) error {
 }
 
 func (b *Bookmark) Get() (map[string]string, error) {
-	f, err := ioutil.ReadFile(b.c.GetBookmarkPath())
+	f, err := ioutil.ReadFile(b.path)
 	if err != nil {
 		return nil, err
 	}
