@@ -4,7 +4,7 @@
 ## Features
 
 - [X] brows directory/files
-- [X] bookmark (Ctrl+b add bookmark and Ctrl+/ show bookmarks)
+- [X] bookmark (`Ctrl+b` add bookmark and `Ctrl+/` show bookmarks)
 - [ ] Open files
 - [ ] Copy  
 - [ ] Cut
