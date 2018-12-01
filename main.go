@@ -62,19 +62,24 @@ func refresh(m *menu.Menu, f *filemanager.FileManager, files []filemanager.File,
 	}
 
 	m.SetItems(menuItems, currentPage)
-	m.Info("Path: " + f.Path().Current())
+	if currentPage == PAGE_BOOKMARKS {
+		m.Info("Bookmarks")
+	} else {
+		m.Info("Path: " + f.Path().Current())
+	}
 	return nil
 }
 
-func getConfirmPage() []menu.MenuItem {
+func showConfirm(m *menu.Menu, val string) {
 	confirmItems := []menu.MenuItem{}
 	confirmItems = append(confirmItems, menu.MenuItem{
 		Title: "No",
 		Value: "no",
 	})
 	confirmItems = append(confirmItems, menu.MenuItem{
-		Title: "yes",
-		Value: "yes",
+		Title: "Yes",
+		Value: val,
 	})
-	return confirmItems
+	m.Info(fmt.Sprintf("Do you want to delete %s?", val))
+	m.SetItems(confirmItems, PAGE_CONFIRM)
 }

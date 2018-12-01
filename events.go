@@ -1,63 +1,104 @@
 package main
 
 import (
+	"os"
+
 	"./filemanager"
 	"./menu"
 )
 
-func enter(mn *menu.Menu) error {
-	_, activePath := mn.GetActive()
-	if filemanager.IsDir(activePath) {
-		fm.Path().Set(activePath)
+var selectedMItem menu.MenuItem
+
+func brows(m *menu.Menu) {
+	mItem := m.GetActive()
+	if filemanager.IsDir(mItem.Value) {
+		fm.Path().Set(mItem.Value)
 		files, err := fm.Ls()
 		if err != nil {
-			return err
+			// return err
 		}
 
-		err = refresh(mn, &fm, files, PAGE_FILES)
+		err = refresh(m, &fm, files, PAGE_FILES)
 		if err != nil {
 			fm.Path().Pop()
-			mn.ShowMsg(err.Error())
+			m.ShowMsg(err.Error())
 		}
 	} else {
+		// TODO: Add file opener
 		// c := make(chan string)
 		// worker := &Worker{Command: "xdg-open", Args: fm.Path().Current(), Output: c}
 		// go worker.Run()
-		mn.ShowMsg(activePath + " is file")
+		m.ShowMsg(mItem.Value + " is file")
 	}
-	return nil
 }
-func back(mn *menu.Menu) error {
+func enter(m *menu.Menu) {
+
+	if m.CurrentPage() == PAGE_CONFIRM {
+		mItem := m.GetActive()
+		if mItem.Title == "Yes" {
+			if m.PrevPage() == PAGE_BOOKMARKS {
+				m.ShowMsg("Bookmark " + selectedMItem.Title + " deleted!")
+				bookmark.Delete(selectedMItem.Title)
+				if _, err := bookmark.Get(); err != nil {
+					back(m)
+				}
+
+				showBookmarks(m)
+				return
+			} else {
+				m.Info("FILE " + selectedMItem.Value + " deleted!")
+				delFile(m, selectedMItem.Value)
+				return
+			}
+		}
+	}
+	brows(m)
+
+}
+func delFile(m *menu.Menu, p string) {
+	os.Remove(p)
 	curr := fm.Path().Current()
-	fm.Path().Pop()
 	files, err := fm.Ls()
 
 	if err != nil {
-		return err
+		// return err
 	}
 
-	err = refresh(mn, &fm, files, PAGE_FILES)
+	err = refresh(m, &fm, files, PAGE_FILES)
 	if err != nil {
 		fm.Path().Set(curr)
-		mn.ShowMsg(curr + " is the root directory")
+		m.ShowMsg(curr + " is the root directory")
 	}
-	return nil
 
 }
 
-func exit(m *menu.Menu) error {
+func back(m *menu.Menu) {
+	curr := fm.Path().Current()
+	fm.Path().Pop()
+	files, err := fm.Ls()
+	if err != nil {
+		// return err
+	}
+
+	err = refresh(m, &fm, files, PAGE_FILES)
+	if err != nil {
+		fm.Path().Set(curr)
+		m.ShowMsg(curr + " is the root directory")
+	}
+}
+
+func exit(m *menu.Menu) {
 	menu.Close()
-	return nil
 }
 
-func setBookmark(m *menu.Menu) error {
-	title, path := m.GetActive()
-	bookmark.Add(title, path)
+func setBookmark(m *menu.Menu) {
+	mItem := m.GetActive()
+	bookmark.Add(mItem.Title, mItem.Value)
 	m.ShowMsg("Bookmark added. Press Ctrl+/ to see all bookmarks")
-	return nil
+
 }
 
-func showBookmarks(m *menu.Menu) error {
+func showBookmarks(m *menu.Menu) {
 	bookmarks, err := bookmark.Get()
 	if err != nil {
 		m.ShowMsg(err.Error())
@@ -70,20 +111,10 @@ func showBookmarks(m *menu.Menu) error {
 		})
 	}
 	refresh(m, &fm, files, PAGE_BOOKMARKS)
-	return nil
+
 }
 
-func del(m *menu.Menu) error {
-	m.SetItems(getConfirmPage(), PAGE_CONFIRM)
-	if m.CurrentPage() == PAGE_BOOKMARKS {
-		key, _ := m.GetActive()
-		m.ShowMsg("Bookmark " + key + " deleted!")
-		bookmark.Delete(key)
-		if _, err := bookmark.Get(); err != nil {
-			back(m)
-			return nil
-		}
-		showBookmarks(m)
-	}
-	return nil
+func del(m *menu.Menu) {
+	selectedMItem = m.GetActive()
+	showConfirm(m, selectedMItem.Value)
 }
