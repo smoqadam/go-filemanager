@@ -4,11 +4,11 @@
 ## Features
 
 - [X] brows directory/files
-- [X] bookmark
+- [X] bookmark (Ctrl+b add bookmark and Ctrl+/ show bookmarks)
 - [ ] Open files
 - [ ] Copy  
 - [ ] Cut
-- [ ] Delete
+- [X] Delete 
 - [ ] Rename
 - [ ] Info
 - [ ] Search
