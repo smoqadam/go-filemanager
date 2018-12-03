@@ -13,4 +13,6 @@
 - [ ] Info
 - [ ] Search
 - [ ] Help
+- [ ] Optimization
+- [ ] Show file contents (text, archive, etc.)
 
