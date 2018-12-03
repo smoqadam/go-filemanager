@@ -21,28 +21,26 @@ type Menu struct {
 	info             string
 	currentPage      string
 	prevPage         string
+	Sections         []*Section
 }
 
 func New(mItems []MenuItem) Menu {
+	err := termbox.Init()
+	if err != nil {
+		panic(err)
+	}
+	width, height := termbox.Size()
 	return Menu{
 		items:            mItems,
 		eventKey:         make(map[termbox.Key]func(*Menu)),
 		activeIndex:      0,
 		itemsActiveIndex: 0,
+		window:           newWindow(width, height),
 	}
 }
 
 func (m *Menu) Render() {
-	err := termbox.Init()
-
-	if err != nil {
-		panic(err)
-	}
 	defer termbox.Close()
-
-	width, height := termbox.Size()
-	m.window = newWindow(width, height)
-
 	mItems := m.items
 	if len(m.items) > m.window.height {
 		mItems = m.items[0:m.window.height]
@@ -56,8 +54,8 @@ func (m *Menu) Render() {
 
 func (m *Menu) setEvents() {
 	m.AddEvent(termbox.KeyCtrlC, close)
-	m.AddEvent(termbox.KeyArrowDown, goDown)
-	m.AddEvent(termbox.KeyArrowUp, goUp)
+	// 	m.AddEvent(termbox.KeyArrowDown, GoDown)
+	// 	m.AddEvent(termbox.KeyArrowUp, GoUp)
 }
 
 func (m *Menu) loop() {
@@ -88,6 +86,9 @@ func (m *Menu) Update() {
 		mi.Print(m.window.startListRow, i+m.window.startListCol)
 	}
 	m.Header(m.info)
+	for _, s := range m.Sections {
+		s.Render()
+	}
 	termbox.Flush()
 }
 
@@ -183,4 +184,12 @@ func (m *Menu) CurrentPage() string {
 func (m *Menu) PrevPage() string {
 	return m.prevPage
 
+}
+
+func (m *Menu) AddSection(section *Section) {
+	m.Sections = append(m.Sections, section)
+}
+
+func (m *Menu) Window() *Window {
+	return m.window
 }

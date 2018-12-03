@@ -22,5 +22,12 @@ func newWindow(width, height int) *Window {
 		errCol:       height - 2,
 		errRow:       4,
 	}
+}
 
+func (w *Window) Width() int {
+	return w.width
+}
+
+func (w *Window) Height() int {
+	return w.height
 }

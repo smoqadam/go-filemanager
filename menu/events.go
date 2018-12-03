@@ -5,7 +5,7 @@ func close(m *Menu) {
 	// return nil
 }
 
-func goDown(m *Menu) {
+func GoDown(m *Menu) {
 	m.activeIndex++
 	m.itemsActiveIndex++
 
@@ -28,7 +28,7 @@ func goDown(m *Menu) {
 
 }
 
-func goUp(m *Menu) {
+func GoUp(m *Menu) {
 	m.activeIndex--
 	m.itemsActiveIndex--
 

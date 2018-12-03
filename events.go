@@ -1,6 +1,7 @@
 package main
 
 import (
+	"net/http"
 	"os"
 
 	"./filemanager"
@@ -117,4 +118,66 @@ func showBookmarks(m *menu.Menu) {
 func del(m *menu.Menu) {
 	selectedMItem = m.GetActive()
 	showConfirm(m, selectedMItem.Value)
+}
+
+func fileContent(m *menu.Menu) {
+	// mItem := m.GetActive()
+	// file, _ := ioutil.ReadFile(mItem.Value)
+
+	// contentSection := menu.NewSection(30, 10, m.Window().Width()-45, 7)
+	// contentSection.Title = " Content "
+	// contentSection.SetContent(string(file))
+	// m.AddSection(&contentSection)
+
+	// infoSection.SetContent("Size: " + string(file.Size()))
+	// m.AddSection(&infoSection)
+	// menu.GoDown(m)
+
+}
+
+func GoUp(m *menu.Menu) {
+	menu.GoUp(m)
+	mItem := m.GetActive()
+	infoSection.SetContent(getFileInfo(mItem.Value))
+	m.AddSection(&infoSection)
+}
+
+func GoDown(m *menu.Menu) {
+	menu.GoDown(m)
+	mItem := m.GetActive()
+	infoSection.SetContent(getFileInfo(mItem.Value))
+	m.AddSection(&infoSection)
+}
+
+func getFileInfo(path string) string {
+	file, _ := os.Stat(path)
+	info := "Size: " + Size(file.Size())
+	info += "\n"
+	info += "Mode: " + file.Mode().String()
+	info += "\n"
+	mime, _ := GetFileContentType(path)
+	info += "Mime: " + mime
+
+	return info
+
+}
+
+func GetFileContentType(path string) (string, error) {
+	// Open File
+	f, err := os.Open(path)
+	if err != nil {
+		return "", err
+	}
+	defer f.Close()
+	// Only the first 512 bytes are used to sniff the content type.
+	buffer := make([]byte, 512)
+
+	_, err = f.Read(buffer)
+	if err != nil {
+		return "", err
+	}
+
+	contentType := http.DetectContentType(buffer)
+
+	return contentType, nil
 }
