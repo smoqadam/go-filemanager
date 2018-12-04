@@ -1,15 +1,19 @@
 package filemanager
 
 import (
+	"fmt"
+	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 type FileManager struct {
 	files     []File
 	pathStack []string
 	path      Path
+	sources   []string
 }
 
 func New(root string) FileManager {
@@ -55,4 +59,42 @@ func IsDir(path string) bool {
 	}
 	mode := fi.Mode()
 	return mode.IsDir()
+}
+
+func (f *FileManager) AddSource(path string) {
+	f.sources = append(f.sources, path)
+}
+
+func (f *FileManager) Paste(path string) {
+
+	for _, source := range f.sources {
+		fileName := strings.Split(source, "/")
+		err := copyFileContents(source, path+"/"+fileName[len(fileName)-1])
+		if err != nil {
+			panic(err)
+		}
+	}
+}
+
+func copyFileContents(src, dst string) (err error) {
+	in, err := os.Open(src)
+	if err != nil {
+		return fmt.Errorf(err.Error())
+	}
+	defer in.Close()
+	out, err := os.Create(dst)
+	if err != nil {
+		return
+	}
+	defer func() {
+		cerr := out.Close()
+		if err == nil {
+			err = cerr
+		}
+	}()
+	if _, err = io.Copy(out, in); err != nil {
+		return
+	}
+	err = out.Sync()
+	return
 }

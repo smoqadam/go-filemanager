@@ -181,3 +181,20 @@ func GetFileContentType(path string) (string, error) {
 
 	return contentType, nil
 }
+
+func copyFile(m *menu.Menu) {
+	mItem := m.GetActive()
+	fm.AddSource(mItem.Value)
+	m.Info(mItem.Value + " added to clipboard. Use Ctrl+p to paste")
+}
+
+func pasteFile(m *menu.Menu) {
+	src := fm.Path().Current()
+	fm.Paste(src)
+	m.Info(src + " Copied ")
+	files, err := fm.Ls()
+	if err != nil {
+		m.ShowMsg(err.Error())
+	}
+	err = refresh(m, &fm, files, PAGE_FILES)
+}

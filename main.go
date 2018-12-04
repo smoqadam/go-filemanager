@@ -51,6 +51,8 @@ func main() {
 	m.AddEvent(termbox.KeyArrowDown, GoDown)
 	m.AddEvent(termbox.KeyArrowUp, GoUp)
 	m.AddEvent(termbox.KeyCtrlI, fileContent)
+	m.AddEvent(termbox.KeyCtrlY, copyFile)
+	m.AddEvent(termbox.KeyCtrlP, pasteFile)
 
 	infoSection = menu.NewSection(30, 5, m.Window().Width()-45, 0)
 	infoSection.Title = " File Info "

@@ -162,8 +162,8 @@ func (m *Menu) ShowMsg(msg string) {
 	for i, ch := range msg {
 		termbox.SetCell(m.window.errRow+i, m.window.errCol, ch, termbox.ColorCyan, termbox.ColorDefault)
 	}
-
 }
+
 func (m *Menu) Info(i string) {
 	m.info = i
 }
