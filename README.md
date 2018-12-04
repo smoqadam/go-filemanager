@@ -6,11 +6,11 @@
 - [X] brows directory/files
 - [X] bookmark (`Ctrl+b` add bookmark and `Ctrl+/` show bookmarks)
 - [ ] Open files
-- [ ] Copy  
+- [X] Copy (Need to refactor. Copy `Ctrl+y`, Paste `Ctrl+P`)  
 - [ ] Cut
 - [X] Delete 
 - [ ] Rename
-- [ ] Info
+- [X] Info (a dirty file info added)
 - [ ] Search
 - [ ] Help
 - [ ] Optimization
